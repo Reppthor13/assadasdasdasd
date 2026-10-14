@@ -16,9 +16,70 @@
     </head>
     <body>
         <div class="container-fluid">
-            <div class="row text-center">
-                <h1 class="display-1">A szerver fut.</h1>
-            </div>
+            <table>
+                <thead id="thead">
+                    <th>Film cime</th>
+                    <th>Datum</th>
+                    <th>Jegyar</th>
+                    <th>Mozi neve</th>
+                    <th>Varos</th>
+                    <th>Muveletek</th>
+                </thead>
+                <tbody id="tbody">
+
+                </tbody>
+            </table>
+            <button id="hozzaadas">Hozzaadas</button>
         </div>
+        <script>
+            let tbody = document.getElementById("tbody");
+            Betoltes();
+            function Betoltes(){
+                fetch("http://127.0.0.1:3000/api/screenings")
+                .then(x => x.json())
+                .then(Betoltes => {
+                    tbody.innerHTML = "";
+                    for(let i = 0; i < Betoltes.results.length; i++){
+                        let torles = document.createElement("button");
+                        let sor = document.createElement("tr");
+                        let cim = document.createElement("td");
+                        let datum = document.createElement("td");
+                        let jegyar = document.createElement("td");
+                        let moziNev = document.createElement("td");
+                        let varos = document.createElement("td");
+                        let muveletek = document.createElement("td");
+                        cim.innerHTML = Betoltes.results[i].film_cim;
+                        datum.innerHTML = Betoltes.results[i].datum;
+                        jegyar.innerHTML = Betoltes.results[i].jegyar;
+                        moziNev.innerHTML = Betoltes.results[i].nev;
+                        varos.innerHTML = Betoltes.results[i].varos;
+                        torles.innerHTML = "Torles";
+                        torles.addEventListener("click", () => Torles(Betoltes.results[i].id));
+                        muveletek.append(torles);
+                        sor.append(cim, datum, jegyar, moziNev, varos, muveletek);
+                        tbody.append(sor);
+                    }
+                });
+            }
+            function Torles(id){
+                const options = {method:"delete"};
+                fetch("http://127.0.0.1:3000/api/screenings/"+id, options)
+                .then(y => y.json())
+                .then(Torles => {
+                    Betoltes();
+                });
+            }
+            let gomb = document.getElementById("hozzaadas");
+            gomb.addEventListener("click", () => Hozzaadas())
+            function Hozzaadas(){
+                const body = {film_cim:"matrix", datum:"2020-11-11", jegyar:"2500", mozi_id:"1"}
+                const options = {method:"post", body:JSON.stringify(body), headers:{"Content-Type":"application/json"}};
+                fetch("http://127.0.0.1:3000/api/screeningsPost", options)
+                .then(y => y.json())
+                .then(Torles => {
+                    Betoltes();
+                });
+            }
+        </script>
     </body>
 </html>
